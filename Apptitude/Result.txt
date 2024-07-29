@@ -1,0 +1,70 @@
+
+Question 1: If 3 men can finish a work in 12 days, then how many days will 5 men take to finish the same work?
+
+A. 15 days
+B. 18 days
+C. 10 days
+D. 24 days
+
+Question 2: If 10 men can finish a work in 10 days, then in how many days will 12 men finish the same work?
+
+A. 8 days
+B. 9 days
+C. 7 days
+D. 11 days
+
+Question 3: If 20 men can finish a work in 30 days, then in how many days will 25 men finish the same work?
+
+A. 25 days
+B. 30 days
+C. 22 days
+D. 27 days
+
+Question 4: If 5 men can finish a work in 10 days, then in how many days will 3 men finish the same work?
+
+A. 15 days
+B. 7 days
+C. 10 days
+D. 6 days
+
+Question 5: If 12 men can finish a work in 15 days, then in how many days will 8 men finish the same work?
+
+A. 12 days
+B. 10 days
+C. 9 days
+D. 6 days
+
+Question 6: If 8 men can finish a work in 12 days, then in how many days will 10 men finish the same work?
+
+A. 8 days
+B. 9 days
+C. 11 days
+D. 7 days
+
+Question 7: If 10 men can finish a work in 20 days, then in how many days will 15 men finish the same work?
+
+A. 10 days
+B. 15 days
+C. 18 days
+D. 12 days
+
+Question 8: If 15 men can finish a work in 30 days, then in how many days will 20 men finish the same work?
+
+A. 20 days
+B. 25 days
+C. 27 days
+D. 24 days
+
+Question 9: If 20 men can finish a work in 40 days, then in how many days will 25 men finish the same work?
+
+A. 30 days
+B. 35 days
+C. 37 days
+D. 32 days
+
+Question 10: If 25 men can finish a work in 50 days, then in how many days will 30 men finish the same work?
+
+A. 40 days
+B. 45 days
+C. 50 days
+D. 55 days
