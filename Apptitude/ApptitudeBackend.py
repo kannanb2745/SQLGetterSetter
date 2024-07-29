@@ -23,6 +23,7 @@ def answer_genai(prompt):
 
 # print(config["Ai21-Apikey"])
 result = """"""
+# TODO: Make the Prompt Better its only repeating the same patter use Problem Topic names to genrate more different question
 result = answer_genai(
     """Generate 10 multiple-choice questions on the topic of quantitative aptitude. \
     Each question should include four answer options \
