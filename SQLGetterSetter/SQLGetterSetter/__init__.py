@@ -3,45 +3,77 @@ from mysql.connector import Error
 
 class MainClass:
     def __init__(self, connection):
-        # pass
         self.connection = connection
-    
-    def select(self,key = None):
-        cursor = self.connection.cursor()
-        try:
-            cursor.execute("SELECT * FROM users")
-            rows = cursor.fetchall()
-            print("Data retrieved successfully:")
-            for row in rows:
-                print(row)
-        except Error as e:
-            print(f"Error: {e}")
-                
-    def insert(self, data):
-        cursor = self.connection.cursor()
-        try:
-            query = "INSERT INTO users (first_name, last_name, email, age) VALUES (%s, %s, %s, %s)"
-            cursor.executemany(query, data)
-            self.connection.commit()  # Commit the transaction
-            print("Data inserted successfully.")
-        except Error as e:
-            print(f"Error: {e}")
-            self.connection.rollback()  # Rollback in case of error
-    def distinct(self, table, *args):
-        if not args:
-            raise ValueError("At least one column name must be provided for DISTINCT operation.")
-        
-        cursor = self.connection.cursor()
-        query = ', '.join(args)
-        
-        try:
-            cursor.execute(f"SELECT DISTINCT {query} FROM {table}")
-            rows = cursor.fetchall()
-            print("Data retrieved successfully:")
-            for row in rows:
-                print(row)
-        except Error as e:
-            print(f"Error: {e}")
+        self.query = ""
+        self.first_condition = True  # Flag to handle 'WHERE' and operators like 'AND'
 
-    
-    
+    # Helper methods for query construction
+    def select(self, table, columns="*"):
+        self.query = f"SELECT {columns} FROM {table} "
+        return self
+
+    def where(self, column):
+        if self.first_condition:
+            self.query += f"WHERE {column} "
+            self.first_condition = False
+        else:
+            self.query += f"AND {column} "
+        return self
+
+    def like(self, pattern):
+        self.query += f"LIKE '{pattern}' "
+        return self
+
+    def isnull(self):
+        self.query += "IS NULL "
+        return self
+
+    def between(self, start, end):
+        self.query += f"BETWEEN {start} AND {end} "
+        return self
+
+    def and_operator(self):
+        self.query += "AND "
+        return self
+
+    def or_operator(self):
+        self.query += "OR "
+        return self
+
+    def distinct(self, table, *args):
+        if args:
+            self.query = f"SELECT DISTINCT {', '.join(args)} FROM {table} "
+        else:
+            print("Error: At least one column must be specified for DISTINCT.")
+        return self
+
+    def update(self, table, updates):
+        set_clause = ", ".join([f"{column} = %s" for column in updates.keys()])
+        self.query += f"UPDATE {table} SET {set_clause} "
+        return self
+
+    def delete(self, table):
+        self.query += f"DELETE FROM {table} "
+        return self
+
+    # Method to execute the query using MySQL Connector
+    def execute_query(self):
+        cursor = self.connection.cursor()
+        try:
+            # Print the constructed query string before execution
+            print(f"Executing query: {self.query.strip()}")
+
+            # If the query contains placeholders (like %s), we execute it with actual data
+            cursor.execute(self.query)
+            if "SELECT" in self.query:
+                rows = cursor.fetchall()
+                print("Data retrieved successfully:")
+                for row in rows:
+                    print(row)
+            else:
+                self.connection.commit()
+                print(f"Query executed successfully: {self.query.strip()}")
+        except Exception as e:
+            print(f"Error executing query: {e}")
+            self.connection.rollback()
+
