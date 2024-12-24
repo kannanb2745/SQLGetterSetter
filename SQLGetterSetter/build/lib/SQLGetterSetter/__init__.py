@@ -2,78 +2,82 @@ from .main import hello
 from mysql.connector import Error
 
 class MainClass:
-    def __init__(self, connection):
+    def __init__(self, connection=None):
         self.connection = connection
         self.query = ""
-        self.first_condition = True  # Flag to handle 'WHERE' and operators like 'AND'
 
-    # Helper methods for query construction
-    def select(self, table, columns="*"):
-        self.query = f"SELECT {columns} FROM {table} "
+    def select(self, *columns):
+        self.query = self.query + "SELECT " + ", ".join(columns) if columns else "SELECT *"
         return self
 
-    def where(self, column):
-        if self.first_condition:
-            self.query += f"WHERE {column} "
-            self.first_condition = False
+    def distinct(self, *columns):
+        self.query = self.query + " DISTINCT " + ", ".join(columns)
+        return self
+
+    def where(self, *condition, operator=None):
+        if operator is None:
+            self.query = self.query + " WHERE " + " ".join(condition)
         else:
-            self.query += f"AND {column} "
+            self.query = self.query + " WHERE " + f" {operator} ".join(condition)
         return self
 
     def like(self, pattern):
-        self.query += f"LIKE '{pattern}' "
+        # self.conditions.append(f"{self.current_column} LIKE '{pattern}'")
+        self.query = self.query + f" LIKE {pattern}"
         return self
 
     def isnull(self):
-        self.query += "IS NULL "
+        # self.conditions.append(f"{self.current_column} IS NULL")
+        self.query = self.query + f" IS NULL"
         return self
 
     def between(self, start, end):
-        self.query += f"BETWEEN {start} AND {end} "
+        # self.conditions.append(f"{self.current_column} BETWEEN {start} AND {end}")
+        self.query = self.query + f" BETWEEN {start} AND {end}"
+        return self
+
+    def IN(self, *values):
+        value_list = ', '.join(map(str, values))
+        self.query = self.query + f" IN ({value_list})"
         return self
 
     def and_operator(self):
-        self.query += "AND "
+        self.query = self.query + " AND"
         return self
 
     def or_operator(self):
-        self.query += "OR "
+        self.query = self.query + " OR"
         return self
 
-    def distinct(self, table, *args):
-        if args:
-            self.query = f"SELECT DISTINCT {', '.join(args)} FROM {table} "
-        else:
-            print("Error: At least one column must be specified for DISTINCT.")
+    def table(self, table_name):
+        self.query = self.query + f" FROM {table_name}"
         return self
-
-    def update(self, table, updates):
-        set_clause = ", ".join([f"{column} = %s" for column in updates.keys()])
-        self.query += f"UPDATE {table} SET {set_clause} "
-        return self
-
-    def delete(self, table):
-        self.query += f"DELETE FROM {table} "
-        return self
-
-    # Method to execute the query using MySQL Connector
-    def execute_query(self):
+    def exe(self):
         cursor = self.connection.cursor()
         try:
-            # Print the constructed query string before execution
-            print(f"Executing query: {self.query.strip()}")
-
-            # If the query contains placeholders (like %s), we execute it with actual data
             cursor.execute(self.query)
-            if "SELECT" in self.query:
-                rows = cursor.fetchall()
-                print("Data retrieved successfully:")
-                for row in rows:
-                    print(row)
+            print("Query Executed")
+            if self.query.lower().startswith("select"):
+                results = cursor.fetchall()  # Fetch all rows
+                cursor.close()
+                self.connection.close()
+                print(self.query)
+                self.query = ""
+                return results 
+                
             else:
                 self.connection.commit()
-                print(f"Query executed successfully: {self.query.strip()}")
-        except Exception as e:
-            print(f"Error executing query: {e}")
-            self.connection.rollback()
+                cursor.close()
+                self.connection.close()
+                print(self.query)
+                self.query = ""
+                return f"Query executed successfully, affected rows: {cursor.rowcount}"
+                
+        except Error as err:
+            print(f"Error: {err}")
+            if self.connection.self.cs_Connectionected():
+                self.connection.close()
+            print(self.query)
+            self.query = ""
+            return None  # Return None if there was an error
 
