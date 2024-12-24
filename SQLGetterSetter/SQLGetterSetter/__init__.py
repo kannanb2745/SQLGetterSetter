@@ -8,10 +8,14 @@ class MainClass:
         self.first_condition = True  # Flag to handle 'WHERE' and operators like 'AND'
 
     # Helper methods for query construction
+    '''
     def select(self, table, columns="*"):
         self.query = f"SELECT {columns} FROM {table} "
         return self
-
+    '''
+    def select(self, *columns = "*"):
+        self.query = "SELECT "+ ", ".join(columns)
+    
     def where(self, column):
         if self.first_condition:
             self.query += f"WHERE {column} "
