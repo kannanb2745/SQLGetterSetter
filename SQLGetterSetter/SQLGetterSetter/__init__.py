@@ -1,10 +1,21 @@
 from .main import hello
-from mysql.connector import Error
+from mysql.connector import connect, Error
 
 class MainClass:
-    def __init__(self, connection=None):
+    def __init__(self, connection=None, connection_params=None):
         self.connection = connection
+        self.connection_params = connection_params  # Store connection params for reconnection
         self.query = ""
+
+    def connect(self):
+        """Reconnects if the connection is unavailable."""
+        if not self.connection or not self.connection.is_connected():
+            try:
+                self.connection = connect(**self.connection_params)
+                print("Reconnected to the database.")
+            except Error as err:
+                print(f"Error reconnecting: {err}")
+                self.connection = None
 
     def select(self, *columns):
         self.query += "SELECT " + ", ".join(columns) if columns else "SELECT *"
@@ -68,7 +79,29 @@ class MainClass:
             self.query += f" LIMIT {n} OFFSET {offset}"
         return self
     
+    def limit(self, n, offset=None):
+        self.query += f" LIMIT {n}" if offset is None else f" LIMIT {n} OFFSET {offset}"
+        return self
+
+    def fetch(self, n, offset=None):
+        if offset is not None:
+            self.query += f" OFFSET {offset} ROWS"
+        self.query += f" FETCH NEXT {n} ROWS ONLY"
+        return self
+    
+    def top(self, n, percent=False):
+        replacement = f"SELECT TOP {n}{' PERCENT' if percent else ''}"
+        self.query = self.query.replace("SELECT", replacement, 1)  # Replace only the first occurrence
+        return self
+                        
+            
     def exe(self):
+        """Executes the constructed query."""
+        self.connect()  # Ensure connection is available
+        if not self.connection:
+            print("Connection is unavailable. Query cannot be executed.")
+            return None
+
         cursor = self.connection.cursor()
         try:
             cursor.execute(self.query + ';')
@@ -85,36 +118,3 @@ class MainClass:
             print(f"Error: {err}")
             self.query = ""
             return None
-        finally:
-            if self.connection.is_connected():
-                self.connection.close()
-            
-    # def exe(self):
-        # cursor = self.connection.cursor()
-        # try:
-            # cursor.execute(self.query + ';')
-            # print("Query Executed")
-            # if self.query.lower().startswith("select"):
-                # results = cursor.fetchall()  # Fetch all rows
-                # cursor.close()
-                # self.connection.close()
-                # print(self.query)
-                # self.query = ""
-                # return results 
-                # 
-            # else:
-                # self.connection.commit()
-                # cursor.close()
-                # self.connection.close()
-                # print(self.query)
-                # self.query = ""
-                # return f"Query executed successfully, affected rows: {cursor.rowcount}"
-                # 
-        # except Error as err:
-            # print(f"Error: {err}")
-            # if self.connection.self.cs_Connectionected():
-                # self.connection.close()
-            # print(self.query)
-            # self.query = ""
-            # return None  # Return None if there was an error
-
