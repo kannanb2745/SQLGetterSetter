@@ -5,10 +5,11 @@ with open("README.md", "r") as f:
 
 setup(
     name = 'SQLGetterSetter',
-    version = '0.2.1.4.2',
+    version = '0.2.2.0',
     packages = find_packages(),
     install_requires =[
-        #library like 'pymongo = 3.2.1',
+        #library like 'pymongo == 3.2.1',
+        'mysql-connector-python == 9.1.0',
 
     ],
     entry_points = {
