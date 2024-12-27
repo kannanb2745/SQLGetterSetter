@@ -140,6 +140,48 @@ class MainClass:
         self.query = f"INSERT INTO {destination}{destination_columns_part} SELECT {source_columns_part} FROM {source}"
         return self
             
+    def update(self, table_name, changes):
+        """
+        Constructs an UPDATE SQL query.
+        :param table_name: Name of the table to update.
+        :param changes: List of tuples containing column name and new value (e.g., [('column1', 'value1'), ('column2', 'value2')]).
+        """
+        if not isinstance(changes, list):
+            raise ValueError("Changes must be a list of tuples: [('column1', 'value1'), ...]")
+
+        def format_value(value):
+            if isinstance(value, str):
+                return f"'{value.replace('\'', '\\\'')}'"
+            return str(value)
+
+        changes_part = ", ".join(f"{col} = {format_value(val)}" for col, val in changes)
+        self.query = f"UPDATE {table_name} SET {changes_part}"
+        # print(self.query)    
+        return self
+
+    def delete(self, table_name):
+        """
+        Constructs a DELETE SQL query.
+        :param table_name: Name of the table to delete records from.
+        :param condition: Optional condition for the WHERE clause (e.g., "id = 1").
+        """
+        self.query = f"DELETE FROM {table_name}"
+        # print(self.query)
+        return self
+
+    def select_into(self, source, destination, source_columns=None):
+        """
+        Constructs a SELECT INTO SQL query.
+        :param source: Source table to select data from.
+        :param destination: Destination table to insert data into.
+        :param source_columns: List of column names to select (optional).
+        """
+        columns_part = ", ".join(source_columns) if source_columns else "*"
+        self.query = f"SELECT {columns_part} INTO {destination} FROM {source}"
+        # print(self.query)
+        return self
+
+            
     def exe(self):
         """Executes the constructed query."""
         self.connect()  # Ensure connection is available
