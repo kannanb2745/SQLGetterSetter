@@ -23,6 +23,8 @@ class MainClass:
         self.sub_query_count += 1
         if self.sub_query_count == 2:
             self.query += " (SELECT " + ", ".join(columns) if columns else " (SELECT "
+        elif columns == ' ':
+            self.query += "SELECT"
         else:
             self.query += "SELECT " + ", ".join(columns) if columns else "SELECT *"
         return self
@@ -38,6 +40,8 @@ class MainClass:
         Parameters are normal condition as string or multiple condition with logical operation."""
         if operator is None:
             self.query += " WHERE " + " ".join(condition)
+        elif condition == (' ',):
+            self.query += " WHERE "
         else:
             self.query += " WHERE " + f" {operator} ".join(condition)
         return self
@@ -59,12 +63,33 @@ class MainClass:
         self.query += f" LIKE {pattern}"
         return self
 
-    def isnull(self):
+    def isnull(self,key = None):
         """ISNULL is used to check the data's of the column is Null or not, 
         No Parameters are passed."""
-        self.query += f" IS NULL"
+        if key != None:
+            self.query += f" ISNULL({key})"
+        else:
+            self.query += f" IS NULL"
+        return self
+    
+    def isnotnull(self):
+        self.query += " IS NOT NULL"
+        return self
+    
+    def ifnull(self, key, value):
+        self.query += f" IFNULL({key}, {value})"
         return self
 
+    def nullif(self, key, value):
+        self.query += f" NULLIF({key}, {value})"
+        return self
+    def coalesce(self, *values):
+        self.query += " COALESCE(" + ', '.join(map(str, values)) + ')'
+        return self
+    
+    def AS(self, name):
+        self.query += f" AS {name}"
+        return self
     def between(self, start, end):
         """BETWEEN is used to retrive the data from certain range, 
         Parameters are starting value and ending."""
@@ -87,6 +112,11 @@ class MainClass:
         """It is an OR operator the added between the query is user's wish to."""
         self.query += " OR"
         return self
+    
+    def add_operator(self):
+        self.query += " +"
+        return self
+    
     def avg(self, value):
         self.query += f" AVG({value})"
         return self
