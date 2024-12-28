@@ -22,7 +22,7 @@ class MainClass:
         """SELECT the coloumns and Default to '*' ."""
         self.sub_query_count += 1
         if self.sub_query_count == 2:
-            self.query += "( SELECT " + ", ".join(columns) if columns else "SELECT *"
+            self.query += " (SELECT " + ", ".join(columns) if columns else " (SELECT "
         else:
             self.query += "SELECT " + ", ".join(columns) if columns else "SELECT *"
         return self

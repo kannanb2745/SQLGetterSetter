@@ -6,6 +6,7 @@ class MainClass:
         self.connection = connection
         self.connection_params = connection_params  # Store connection params for reconnection
         self.query = ""
+        self.sub_query_count = 0
 
     def connect(self):
         """Establize New Connection and Reconnects if the connection is unavailable."""
@@ -19,7 +20,11 @@ class MainClass:
 
     def select(self, *columns):
         """SELECT the coloumns and Default to '*' ."""
-        self.query += "SELECT " + ", ".join(columns) if columns else "SELECT *"
+        self.sub_query_count += 1
+        if self.sub_query_count == 2:
+            self.query += " (SELECT " + ", ".join(columns) if columns else " (SELECT "
+        else:
+            self.query += "SELECT " + ", ".join(columns) if columns else "SELECT *"
         return self
 
     def distinct(self, *columns):
@@ -81,6 +86,9 @@ class MainClass:
     def or_operator(self):
         """It is an OR operator the added between the query is user's wish to."""
         self.query += " OR"
+        return self
+    def avg(self, value):
+        self.query += f" AVG({value})"
         return self
 
     def table(self, table_name):
@@ -191,7 +199,10 @@ class MainClass:
 
         cursor = self.connection.cursor()
         try:
-            cursor.execute(self.query + ';')
+            if self.sub_query_count == 2:
+                cursor.execute(self.query + ');')
+            else:
+                cursor.execute(self.query + ';')
             # print("Query Executed")
             if self.query.lower().startswith("select"): #Need to return the Resulted data
                 results = cursor.fetchall()  
