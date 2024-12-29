@@ -30,6 +30,31 @@ class MainClass:
         self.query += f"BACKUP DATABASE {dbname} TO DISK = {path}"  
         return self
     
+    def create_table(self, table, *columns):
+        """Creates a table with the specified columns."""
+        self.query = f"CREATE TABLE {table} ({', '.join(columns)})"
+        return self
+
+    def add_column(self, table, *columns):
+        """Adds one or more columns to the specified table."""
+        self.query = f"ALTER TABLE {table} ADD ({', '.join(columns)})"
+        return self
+
+    def drop_column(self, table, *columns):
+        """Drops one or more columns from the specified table."""
+        self.query = f"ALTER TABLE {table} " + ", ".join(f"DROP COLUMN {col}" for col in columns)
+        return self
+
+    def drop_table(self, table):
+        """Drops the specified table."""
+        self.query = f"DROP TABLE {table}"
+        return self
+
+    def truncate_table(self, table):
+        """Truncates the specified table."""
+        self.query = f"TRUNCATE TABLE {table}"
+        return self 
+    
     def select(self, *columns):
         """SELECT the coloumns and Default to '*' ."""
         self.sub_query_count += 1
