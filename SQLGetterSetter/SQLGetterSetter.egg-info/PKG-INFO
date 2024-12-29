@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: SQLGetterSetter
-Version: 0.2.3.2
+Version: 0.2.3.3
 Description-Content-Type: text/markdown
 
 # SQLGetterSetter - A Clean MongoDB Getter Setter API for Python

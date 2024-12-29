@@ -57,6 +57,21 @@ class MainClass:
         self.query = f"TRUNCATE TABLE {table}"
         return self 
     
+    def create_index(self, table_name, *columns):
+        """Creates an index on the specified columns of the table."""
+        index_name = "idx_" + "_".join(col.lower() for col in columns)
+        self.query = f"CREATE INDEX {index_name} ON {table_name} ({', '.join(columns)})"
+        return self
+
+    def create_view(self, view_name):
+        """Creates a view with the specified SELECT query."""
+        self.query = f"CREATE VIEW {view_name} AS "
+        return self
+    
+    def show(self, key):
+        self.query += f"SHOW {key}"
+        return self
+    
     def select(self, *columns):
         """SELECT the coloumns and Default to '*' ."""
         self.sub_query_count += 1
@@ -265,6 +280,7 @@ class MainClass:
         self.query = f"SELECT {columns_part} INTO {destination} FROM {source}"
         # print(self.query)
         return self
+    
             
     def exe(self):
         """Executes the constructed query."""

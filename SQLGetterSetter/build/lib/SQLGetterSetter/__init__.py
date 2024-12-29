@@ -23,10 +23,12 @@ class MainClass:
         return self
     
     def dropdb(self, dbname):
+        """Dropping an Database"""
         self.query += f"DROP DATABASE {dbname}"
         return self
     
     def backupdb(self, dbname, path):
+        """Backup the Database into the specified path"""
         self.query += f"BACKUP DATABASE {dbname} TO DISK = {path}"  
         return self
     
@@ -54,6 +56,21 @@ class MainClass:
         """Truncates the specified table."""
         self.query = f"TRUNCATE TABLE {table}"
         return self 
+    
+    def create_index(self, table_name, *columns):
+        """Creates an index on the specified columns of the table."""
+        index_name = "idx_" + "_".join(col.lower() for col in columns)
+        self.query = f"CREATE INDEX {index_name} ON {table_name} ({', '.join(columns)})"
+        return self
+
+    def create_view(self, view_name):
+        """Creates a view with the specified SELECT query."""
+        self.query = f"CREATE VIEW {view_name} AS "
+        return self
+    
+    def show(self, key):
+        self.query += f"SHOW {key}"
+        return self
     
     def select(self, *columns):
         """SELECT the coloumns and Default to '*' ."""
@@ -110,23 +127,30 @@ class MainClass:
         return self
     
     def isnotnull(self):
+        """ISNOTNULL is used to check the data's of the column is not Null,"""
         self.query += " IS NOT NULL"
         return self
     
     def ifnull(self, key, value):
+        """IFNULL is used to replace the Null values with the specified value,"""
         self.query += f" IFNULL({key}, {value})"
         return self
 
     def nullif(self, key, value):
+        """NULLIF is used to replace the specified value with the Null values,"""
         self.query += f" NULLIF({key}, {value})"
         return self
+    
     def coalesce(self, *values):
+        """COALESCE is used to retrive the first non-null value from the list of values,"""
         self.query += " COALESCE(" + ', '.join(map(str, values)) + ')'
         return self
     
     def AS(self, name):
+        """AS is used to assign the alias name to the column,"""
         self.query += f" AS {name}"
         return self
+    
     def between(self, start, end):
         """BETWEEN is used to retrive the data from certain range, 
         Parameters are starting value and ending."""
@@ -151,10 +175,12 @@ class MainClass:
         return self
     
     def add_operator(self):
+        """It is an + operator the added between the query is user's wish to."""
         self.query += " +"
         return self
     
     def avg(self, value):
+        """AVG is used to retrive the average of the data,"""
         self.query += f" AVG({value})"
         return self
 
@@ -187,7 +213,6 @@ class MainClass:
     def insert(self, table_name, values, columns=None):
         """
         Constructs an INSERT INTO SQL query for single or multiple rows.
-    
         :param table_name: Name of the table to insert data into.
         :param values: List of values (single row as a tuple or multiple rows as a list of tuples).
         :param columns: List of column names (optional).
@@ -197,7 +222,6 @@ class MainClass:
             values_part = ", ".join(f"({', '.join(map(str, row))})" for row in values)
         else:
             values_part = f"({', '.join(map(str, values))})"
-        
         self.query = f"INSERT INTO {table_name}{columns_part} VALUES {values_part}"
         return self
 
@@ -221,7 +245,6 @@ class MainClass:
         :param table_name: Name of the table to update.
         :param changes: List of tuples containing column name and new value (e.g., [('column1', 'value1'), ('column2', 'value2')]).
         """
-                
         if changes[0][1] == '':
             self.query += f"UPDATE {table_name} SET {changes[0][0]} ="
             return self
@@ -233,10 +256,8 @@ class MainClass:
                 if isinstance(value, str):
                     return f"'{value.replace('\'', '\\\'')}'"
                 return str(value)
-    
             changes_part = ", ".join(f"{col} = {format_value(val)}" for col, val in changes)
             self.query = f"UPDATE {table_name} SET {changes_part}"
-            # print(self.query)    
             return self
 
     def delete(self, table_name):
@@ -246,7 +267,6 @@ class MainClass:
         :param condition: Optional condition for the WHERE clause (e.g., "id = 1").
         """
         self.query = f"DELETE FROM {table_name}"
-        # print(self.query)
         return self
 
     def select_into(self, source, destination, source_columns=None):
@@ -260,7 +280,7 @@ class MainClass:
         self.query = f"SELECT {columns_part} INTO {destination} FROM {source}"
         # print(self.query)
         return self
-
+    
             
     def exe(self):
         """Executes the constructed query."""
