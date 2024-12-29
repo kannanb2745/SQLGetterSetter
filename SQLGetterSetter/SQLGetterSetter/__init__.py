@@ -17,6 +17,7 @@ class MainClass:
             except Error as err:
                 print(f"Error reconnecting: {err}")
                 self.connection = None
+                
     def create_db(self, dbname):
         """Creating an Database"""
         self.query += f"CREATE DATABASE {dbname}"
@@ -353,6 +354,8 @@ END
         return self
     
     def call_procedure(self, procedure_name, params=()):
+        """Calls a stored procedure with the given name and parameters.
+        Pass parameters as a tuple, e.g., ("param1", "param2")."""
         self.connect()
         if not self.connection:
             print("Connection is unavailable. Query cannot be executed.")
@@ -366,7 +369,6 @@ END
                 results.append(result.fetchall())
             cursor.close()
             self.query = ""
-            print(results, "Results")
             return results
         except Error as err:
             print(f"Error: {err}")
@@ -384,17 +386,12 @@ END
 # 
         cursor = self.connection.cursor()
         try:
-            # print(self.query)
             if self.sub_query_count > 0:
                 cursor.execute(self.query + ');')
             elif self.query.lower().startswith("create procedure"):
-                # print(f"DELIMITER {self.procedure_parameter}")
                 print(self.query)
-                # print(f"DELIMITER ;")
-                # cursor.execute(f"DELIMITER {self.procedure_parameter}")
                 cursor.execute(self.query)
                 self.connection.commit()
-                # cursor.execute(f"DELIMITER ;")
             else:
                 cursor.execute(self.query + ';')
             if self.query.lower().startswith("select"): #Need to return the Resulted data
