@@ -52,6 +52,11 @@ class MainClass:
         self.query = f"DROP TABLE {table}"
         return self
 
+    def drop_view(self, view):
+        """Drops the specified view."""
+        self.query = f"DROP VIEW {view}"
+        return self
+    
     def truncate_table(self, table):
         """Truncates the specified table."""
         self.query = f"TRUNCATE TABLE {table}"
