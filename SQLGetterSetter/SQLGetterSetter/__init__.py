@@ -286,7 +286,7 @@ class MainClass:
         :param source_columns: List of source column names (optional).
         :param destination_columns: List of destination column names (optional).
         """
-        source_columns_part = f" ({', '.join(source_columns)})" if source_columns else "*"
+        source_columns_part = f" {', '.join(source_columns)}" if source_columns else "*"
         destination_columns_part = f" ({', '.join(destination_columns)})" if destination_columns else ""
         self.query = f"INSERT INTO {destination}{destination_columns_part} SELECT {source_columns_part} FROM {source}"
         return self
@@ -388,11 +388,12 @@ END
         try:
             if self.sub_query_count > 0:
                 cursor.execute(self.query + ');')
+                self.sub_query_count = 0
             elif self.query.lower().startswith("create procedure"):
-                print(self.query)
                 cursor.execute(self.query)
                 self.connection.commit()
             else:
+                print(self.query+';')
                 cursor.execute(self.query + ';')
             if self.query.lower().startswith("select"): #Need to return the Resulted data
                 results = cursor.fetchall() 
