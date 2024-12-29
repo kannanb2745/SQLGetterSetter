@@ -185,7 +185,7 @@ class MainClass:
         """It is an OR operator the added between the query is user's wish to."""
         self.query += " OR"
         return self
-    
+
     def add_operator(self):
         """It is an + operator the added between the query is user's wish to."""
         self.query += " +"
@@ -331,6 +331,50 @@ class MainClass:
         self.query = f"SELECT {columns_part} INTO {destination} FROM {source}"
         return self
     
+    def create_procedure(self, proc_name, queries, params=None):
+        """
+        Creates a stored procedure with the given name, queries, and optional parameters.
+        
+        :param proc_name: Name of the stored procedure.
+        :param queries: List of SQL queries to include in the procedure.
+        :param params: Optional parameters for the procedure (default is None).
+                       Should be a list of strings, e.g., ["IN param1 INT", "OUT param2 VARCHAR(50)"].
+        :param symbol: Delimiter symbol (default is '//').
+        :return: Instance of the class (self).
+        """
+        param_string = ", ".join(params) if params else ""    
+        query_body = "\n    ".join(queries)    
+        self.query = f"""
+CREATE PROCEDURE {proc_name}({param_string})
+BEGIN
+    {query_body}
+END
+"""
+        return self
+    
+    def call_procedure(self, procedure_name, params=()):
+        self.connect()
+        if not self.connection:
+            print("Connection is unavailable. Query cannot be executed.")
+            return None
+# 
+        cursor = self.connection.cursor()
+        try:
+            cursor.callproc(procedure_name, params)
+            results = []
+            for result in cursor.stored_results():
+                results.append(result.fetchall())
+            cursor.close()
+            self.query = ""
+            print(results, "Results")
+            return results
+        except Error as err:
+            print(f"Error: {err}")
+            self.query = ""
+            return None
+    
+    
+    
     def exe(self):
         """Executes the constructed query."""
         self.connect()  # Ensure connection is available
@@ -340,8 +384,17 @@ class MainClass:
 # 
         cursor = self.connection.cursor()
         try:
+            # print(self.query)
             if self.sub_query_count > 0:
                 cursor.execute(self.query + ');')
+            elif self.query.lower().startswith("create procedure"):
+                # print(f"DELIMITER {self.procedure_parameter}")
+                print(self.query)
+                # print(f"DELIMITER ;")
+                # cursor.execute(f"DELIMITER {self.procedure_parameter}")
+                cursor.execute(self.query)
+                self.connection.commit()
+                # cursor.execute(f"DELIMITER ;")
             else:
                 cursor.execute(self.query + ';')
             if self.query.lower().startswith("select"): #Need to return the Resulted data
@@ -356,3 +409,7 @@ class MainClass:
             print(f"Error: {err}")
             self.query = ""
             return None
+            
+            
+            
+            
