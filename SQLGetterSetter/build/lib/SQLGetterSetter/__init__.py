@@ -17,17 +17,17 @@ class MainClass:
             except Error as err:
                 print(f"Error reconnecting: {err}")
                 self.connection = None
-    def createdb(self, dbname):
+    def create_db(self, dbname):
         """Creating an Database"""
         self.query += f"CREATE DATABASE {dbname}"
         return self
     
-    def dropdb(self, dbname):
+    def drop_db(self, dbname):
         """Dropping an Database"""
         self.query += f"DROP DATABASE {dbname}"
         return self
     
-    def backupdb(self, dbname, path):
+    def backup_db(self, dbname, path):
         """Backup the Database into the specified path"""
         self.query += f"BACKUP DATABASE {dbname} TO DISK = {path}"  
         return self
@@ -74,6 +74,7 @@ class MainClass:
         return self
     
     def show(self, key):
+        """SHOW is used to retrive the information of the database."""
         self.query += f"SHOW {key}"
         return self
     
