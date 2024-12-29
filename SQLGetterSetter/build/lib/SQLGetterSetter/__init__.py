@@ -17,7 +17,19 @@ class MainClass:
             except Error as err:
                 print(f"Error reconnecting: {err}")
                 self.connection = None
-
+    def createdb(self, dbname):
+        """Creating an Database"""
+        self.query += f"CREATE DATABASE {dbname}"
+        return self
+    
+    def dropdb(self, dbname):
+        self.query += f"DROP DATABASE {dbname}"
+        return self
+    
+    def backupdb(self, dbname, path):
+        self.query += f"BACKUP DATABASE {dbname} TO DISK = {path}"  
+        return self
+    
     def select(self, *columns):
         """SELECT the coloumns and Default to '*' ."""
         self.sub_query_count += 1
@@ -184,18 +196,23 @@ class MainClass:
         :param table_name: Name of the table to update.
         :param changes: List of tuples containing column name and new value (e.g., [('column1', 'value1'), ('column2', 'value2')]).
         """
-        if not isinstance(changes, list):
-            raise ValueError("Changes must be a list of tuples: [('column1', 'value1'), ...]")
-
-        def format_value(value):
-            if isinstance(value, str):
-                return f"'{value.replace('\'', '\\\'')}'"
-            return str(value)
-
-        changes_part = ", ".join(f"{col} = {format_value(val)}" for col, val in changes)
-        self.query = f"UPDATE {table_name} SET {changes_part}"
-        # print(self.query)    
-        return self
+                
+        if changes[0][1] == '':
+            self.query += f"UPDATE {table_name} SET {changes[0][0]} ="
+            return self
+        else:
+            if not isinstance(changes, list):
+                raise ValueError("Changes must be a list of tuples: [('column1', 'value1'), ...]")
+    
+            def format_value(value):
+                if isinstance(value, str):
+                    return f"'{value.replace('\'', '\\\'')}'"
+                return str(value)
+    
+            changes_part = ", ".join(f"{col} = {format_value(val)}" for col, val in changes)
+            self.query = f"UPDATE {table_name} SET {changes_part}"
+            # print(self.query)    
+            return self
 
     def delete(self, table_name):
         """
