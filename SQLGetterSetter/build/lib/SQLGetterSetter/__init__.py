@@ -185,11 +185,46 @@ class MainClass:
         self.query += " +"
         return self
     
+    def comma(self):
+        """It is an , operator the added between the query is user's wish to."""
+        self.query += ","
+        return self
+    
     def avg(self, value):
         """AVG is used to retrive the average of the data,"""
         self.query += f" AVG({value})"
         return self
 
+    def count(self, value):
+        """COUNT is used to retrive the count of the data,"""
+        self.query += f" COUNT({value})"
+        return self
+    
+    def max(self, value):
+        """MAX is used to retrive the maximum value from the data,"""
+        self.query += f" MAX({value})"
+        return self
+    
+    def min(self, value):
+        """MIN is used to retrive the minimum value from the data,"""
+        self.query += f" MIN({value})"
+        return self
+    
+    def sum(self, value):
+        """SUM is used to retrive the sum of the data,"""
+        self.query += f" SUM({value})"
+        return self
+
+    def year(self, value):
+        """YEAR is used to retrive the year from the date,"""
+        self.query += f" YEAR({value})"
+        return self
+
+    def groupby(self, *columns):
+        """GROUPBY is used to group the data based on the column_names,"""
+        self.query += f" GROUP BY {', '.join(columns)}"
+        return self
+    
     def table(self, table_name):
         """Assign the table name to the query."""
         self.query += f" FROM {table_name}"
