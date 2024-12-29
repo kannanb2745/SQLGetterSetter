@@ -173,7 +173,7 @@ class MainClass:
     def IN(self, *values):
         """IN is used to check the multiple columns, 
         Parameter are column_names passed as tuple."""
-        value_list = ', '.join(map(str, values))
+        value_list = ', '.join(f"'{value}'" for value in values)
         self.query += f" IN ({value_list})"
         return self
 
