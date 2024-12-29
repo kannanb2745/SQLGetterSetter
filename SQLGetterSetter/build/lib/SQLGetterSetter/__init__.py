@@ -80,15 +80,21 @@ class MainClass:
     
     def select(self, *columns):
         """SELECT the coloumns and Default to '*' ."""
-        self.sub_query_count += 1
-        if self.sub_query_count == 2:
-            self.query += " (SELECT " + ", ".join(columns) if columns else " (SELECT "
-        elif columns == ' ':
+        if columns == (' ',):
             self.query += "SELECT"
         else:
             self.query += "SELECT " + ", ".join(columns) if columns else "SELECT *"
+        return self 
+    
+    def sub_select(self, *columns):
+        """SELECT the coloumns and Default to '*' ."""
+        self.sub_query_count += 1
+        if columns == (' ',):
+            self.query += "(SELECT"
+        else:
+            self.query += " (SELECT " + ", ".join(columns) if columns else " (SELECT *"
         return self
-
+    
     def distinct(self, *columns):
         """DISTINCT is used to retrive the unique data , 
         Parameters are single and multiple column_names."""
@@ -248,7 +254,7 @@ class MainClass:
         """TOP is used in sql_server to retrive the begging data at certain percentage or number, 
         Parameters are no.of.rows and percentage default -> None."""
         replacement = f"SELECT TOP {n}{' PERCENT' if percent else ''}"
-        self.query = self.query.replace("SELECT", replacement, 1)  # Replace only the first occurrence
+        self.query = self.query.replace("SELECT", replacement, 1)  
         return self
         
     def insert(self, table_name, values, columns=None):
@@ -260,9 +266,13 @@ class MainClass:
         """
         columns_part = f" ({', '.join(columns)})" if columns else ""        
         if isinstance(values, list):
-            values_part = ", ".join(f"({', '.join(map(str, row))})" for row in values)
+            values_part = ", ".join(
+                f"({', '.join(repr(value) if isinstance(value, str) else str(value) for value in row)})"
+                for row in values
+            )
         else:
-            values_part = f"({', '.join(map(str, values))})"
+            values_part = f"({', '.join(repr(value) if isinstance(value, str) else str(value) for value in values)})"
+        
         self.query = f"INSERT INTO {table_name}{columns_part} VALUES {values_part}"
         return self
 
@@ -319,26 +329,23 @@ class MainClass:
         """
         columns_part = ", ".join(source_columns) if source_columns else "*"
         self.query = f"SELECT {columns_part} INTO {destination} FROM {source}"
-        # print(self.query)
         return self
     
-            
     def exe(self):
         """Executes the constructed query."""
         self.connect()  # Ensure connection is available
         if not self.connection:
             print("Connection is unavailable. Query cannot be executed.")
             return None
-
+# 
         cursor = self.connection.cursor()
         try:
-            if self.sub_query_count == 2:
+            if self.sub_query_count > 0:
                 cursor.execute(self.query + ');')
             else:
                 cursor.execute(self.query + ';')
-            # print("Query Executed")
             if self.query.lower().startswith("select"): #Need to return the Resulted data
-                results = cursor.fetchall()  
+                results = cursor.fetchall() 
             else:
                 self.connection.commit()
                 results = f"Query executed successfully, affected rows: {cursor.rowcount}"
