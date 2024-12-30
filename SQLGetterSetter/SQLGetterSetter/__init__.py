@@ -393,7 +393,6 @@ END
                 cursor.execute(self.query)
                 self.connection.commit()
             else:
-                print(self.query+';')
                 cursor.execute(self.query + ';')
             if self.query.lower().startswith("select"): #Need to return the Resulted data
                 results = cursor.fetchall() 
