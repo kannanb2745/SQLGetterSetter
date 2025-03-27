@@ -5,7 +5,8 @@ with open("README.md", "r") as f:
 
 setup(
     name = 'SQLGetterSetter',
-    version = '0.4.4',
+    version = '1.0.0',
+    author = 'Kannan B',
     packages = find_packages(),
     install_requires =[
         #library like 'pymongo == 3.2.1',
